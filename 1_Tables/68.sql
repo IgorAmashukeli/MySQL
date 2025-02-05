@@ -1,15 +1,28 @@
 /*
-If there are identical books in the supply and book tables that have the same price,
-output their name and author, and also calculate the total number of copies of books in the supply and book tables,
-name the Name, Author, and Quantity columns.
+For each author, the author table shows the number of books he has written in each genre.
 */
 
 
-
-SELECT book.title AS Title, name_author AS Author, supply.amount + book.amount AS Amount
+SELECT 
+  name_author, 
+  name_genre, 
+  COUNT(title) AS Amount 
 FROM 
-    author 
-    INNER JOIN book USING (author_id)   
-    INNER JOIN supply ON book.title = supply.title 
-                         and author.name_author = supply.author
-                         and book.price = supply.price;
+  (
+    SELECT 
+      name_author, 
+      name_genre, 
+      author_id, 
+      genre_id 
+    FROM 
+      author CROSS 
+      JOIN genre
+  ) author_genre 
+  LEFT JOIN book ON author_genre.author_id = book.author_id 
+  and author_genre.genre_id = book.genre_id 
+GROUP BY 
+  name_author, 
+  name_genre 
+ORDER BY 
+  name_author, 
+  Amount DESC;
