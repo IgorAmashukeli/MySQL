@@ -6,7 +6,7 @@ and Bulgakov's book "The White Guard" belongs to "Adventures" (these changes hav
 */
 
 
-/*first type of SQL*/
+/*first idea of SQL request*/
 SELECT 
   name_author 
 FROM 
@@ -28,7 +28,7 @@ ORDER BY
   name_author;
 
 
-/*second type of SQL*/
+/*second idea of SQL request*/
 SELECT 
   name_author 
 FROM 
