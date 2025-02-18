@@ -190,3 +190,6 @@ ORDER BY
   GroupName, 
   СountSteps DESC, 
   StudentName;
+
+
+/*another way to do it*/
