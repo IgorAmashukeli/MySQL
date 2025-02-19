@@ -7,62 +7,34 @@ SELECT
   Количество_шагов 
 FROM 
   (
-    SELECT 
-      'I' AS Группа, 
-      student_name AS Студент, 
-      COUNT(step_id) AS Количество_шагов 
+        SELECT 
+    'I' AS Группа, 
+    stdnt AS Студент, 
+    COUNT(stp) AS Количество_шагов 
     FROM 
-      (
+    (
         SELECT 
-          student_name, 
-          step_id 
+        student_name AS stdnt, 
+        step_id AS stp, 
+        result AS res, 
+        LAG(result) OVER(
+            PARTITION BY student_name, 
+            step_id 
+            ORDER BY 
+            submission_time
+        ) AS res_prev 
         FROM 
-          student 
-          INNER JOIN step_student USING(student_id) 
-        GROUP BY 
-          student_name, 
-          step_id
-      ) stp_std0 
+        student 
+        INNER JOIN step_student USING(student_id)
+    ) AS reses 
     WHERE 
-      (
-        SELECT 
-          MIN(submission_time) 
-        FROM 
-          (
-            SELECT 
-              student_name, 
-              step_id, 
-              submission_time, 
-              result 
-            FROM 
-              student 
-              INNER JOIN step_student USING(student_id)
-          ) AS stp_std 
-        WHERE 
-          stp_std.student_name = stp_std0.student_name 
-          AND stp_std.step_id = stp_std0.step_id 
-          AND stp_std.result = 'correct'
-      ) <= (
-        SELECT 
-          MAX(submission_time) 
-        FROM 
-          (
-            SELECT 
-              student_name, 
-              step_id, 
-              submission_time, 
-              result 
-            FROM 
-              student 
-              INNER JOIN step_student USING(student_id)
-          ) AS stp_std 
-        WHERE 
-          stp_std.student_name = stp_std0.student_name 
-          AND stp_std.step_id = stp_std0.step_id 
-          AND stp_std.result = 'wrong'
-      ) 
+    res IS NOT NULL 
+    AND res_prev IS NOT NULL 
+    AND res = 'wrong' 
+    AND res_prev = 'correct' 
     GROUP BY 
-      Студент 
+    stdnt
+
     UNION ALL 
     SELECT 
       'II' AS Группа, 
@@ -106,4 +78,9 @@ FROM
           step_id
         HAVING COUNT(*) = SUM(IF(step_student.result = 'wrong', 1, 0))
     ) stp_std0 
-    GROUP BY Студент 
+    GROUP BY Студент
+  ) AS final 
+ORDER BY 
+  Группа, 
+  Количество_шагов DESC, 
+  Студент;
